@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>My Swaps</title>
+    <% include ../partials/import %>
+</head>
+
+<body>
+    <% include ../partials/header %>
+
+    <% include ../partials/user-navigation %>
+
+    <div class="container-fluid" id="A">
+        <div class="row" id="nav">
+            <% include ../partials/site-navigation %>
+            <div class="col-md-10" id="B">
+                    <div class = "row">
+                            <div id="path">	
+                                Home > Categories > Item > Swap
+                            </div>
+                    </div>
+                    <p id="center">
+                       <h1>MAC's Swap Offers exclusively for you</h1>
+                    </p>
+                    <div class="row">
+                            <div id="table-padding">   
+                               <% if(swapItem.length>0) { %>    
+                                <table class="table table-striped">
+                                    <thead>
+                                      <tr>
+                                          <th>Game</th>
+                                          <th>Swap Offer</th>
+                                          <th></th>
+                                      </tr>
+                                    </thead>
+                                     <tbody>
+                                        <% for (i = 0; i < swapItem.length; i++) { %>
+                                            <tr>
+                                                <td><a href="/item?itemCode=<%= swapItem[i].Item.itemCode %>"><%= swapItem[i].Item.itemName %></a></td>
+                                                <td><a href="/item?itemCode=<%= swapItem[i].SwapItem.itemCode %>"><%= swapItem[i].SwapItem.itemName %></a></td>
+                                                 <td> 
+                                                    <div class="row">
+                                                        <% if(swapItem[i].PendingStatus == 1) { %>
+                                                            <div class="col-md-3">
+                                                                    <a href="/myItems?action=accept&theItem=<%= swapItem[i].Item.itemCode %>">
+                                                                        <div class="btn btn-info">Accept</div>
+                                                                    </a>
+                                                            </div>
+                                                            <div class="col-md-3">
+                                                                    <a href="/myItems?action=reject&theItem=<%= swapItem[i].Item.itemCode %>">
+                                                                        <div class="btn btn-info">Reject</div>
+                                                                    </a>
+                                                            </div>
+                                                        <% } else { %>
+                                                            <div class="col-md-3">
+                                                                    <a href="/myItems?action=withdraw&theItem=<%= swapItem[i].Item.itemCode %>">
+                                                                        <div class="btn btn-info">Withdraw Swap</div>
+                                                                    </a>
+                                                            </div>
+                                                        <% } %>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table> 
+                                <% } else { %>
+                                    <p>You donot have any Items yet!</p>
+                                <% } %>  
+                            </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <% include ../partials/footer %>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+<!-- view/partials/head.ejs -->
+<div class="container-fluid" id="header">
+    <div class="row" >
+        <div class="col-md-2 col-sm-2 col-xs-2"  id="H1">
+                <b>GAC</b><br>
+                <div class="row" id="H11">
+                    Gaming Action Center
+                </div>
+                
+        </div>	
+        <div class="col-md-1 col-sm-1 col-xs-1" id="H12">
+                <% if (user != undefined) { %>
+                    <p>  Welcome, <%= user %> </p>
+                <% } else { %>
+                    <p>  not signed in </p>
+                <% } %>
+        </div>		
+    </div>
+</div>

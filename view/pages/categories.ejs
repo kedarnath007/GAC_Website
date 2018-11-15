@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Categories</title>
+    <% include ../partials/import %>
+</head>
+
+<body>
+    <% include ../partials/header %>
+
+    <% include ../partials/user-navigation %>
+
+    <div class="container-fluid" id="A">
+        <div class="row" id="nav">
+            <% include ../partials/site-navigation %>
+            <div class="col-md-10" id="B">
+                    <div class="row"> 
+                            <div class="col-md-3 col-sm-3 col-xs-3" id="path">
+                                Home > Categories
+                            </div>
+                            <div id="content">
+                                <% for (i = 0; i < category.length; i++) { %>
+                                <div class="col-md-3">
+                                        <h4><%= category[i] %></h4>
+                                        <ul>
+                                            <% for(j=0; j < gameItems.length; j++) { %>
+                                                <% if(gameItems[j].catalogCategory.toLowerCase() == category[i].toLowerCase()) { %>
+                                                    <li><a href="/item?itemCode=<%= gameItems[j].itemCode %>"><%= gameItems[j].itemName %></a></li>
+                                                <% } %>
+                                            <% } %>
+                                        </ul>
+                                </div>
+                                <% } %>
+                            </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+    <% include ../partials/footer %>
+
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Swap</title>
+    <% include ../partials/import %>
+</head>
+
+<body>
+    <% include ../partials/header %>
+
+    <% include ../partials/user-navigation %>
+
+    <div class="container-fluid" id="A">
+        <div class="row" id="nav">
+            <% include ../partials/site-navigation %>
+            <div class="col-md-10" id="B">
+                    <div class = "row">
+                        <div id="path">	
+                                    Home > Categories > Item > Swap
+                        </div>
+                    </div>
+                    <% if(available) { %>
+                    <div class="row">
+                        <div id="content">
+                            <div class="col-md-5 col-sm-5 col-xs-5">
+                                <p class ="ppp">
+                                    <%= gameItem.description %>
+                                </p>
+                            </div>
+                            <div class="col-md-3 col-sm-3 col-xs-3" id="nn">
+                                    <img src=<%= gameItem.imageURL %> class="img-rounded img-responsive" alt="Game CD">
+                            </div>
+                            <div class="col-md-3" id="np">
+                                <h3><b><u> <%= gameItem.itemName %></u></b></h3>
+                            </div>
+                        </div>
+                    </div>
+                    <form action='/myItems' method='GET'>
+                    <div class="row">
+                        <div id="content2">
+                            <h3>Select your favourite game to swap with</h3>
+                            <div class="col-md-5 col-sm-5 col-xs-5">
+                                <table class="table table-bordered">
+                                    <tbody>
+                                        <% for( i = 0; i < itemListView.length; i++) { %>
+                                        <tr>
+                                            <td>
+                                                <div class="custom-control custom-radio">
+                                                        <input type="radio" class="custom-control-input" value="<%= itemListView[i].itemCode %>" name="theItem">
+                                                        <label class="custom-control-label" for="defaultGroupExample1"><%= itemListView[i].itemName %></label>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                        <% } %>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <input type="hidden" name="action" value="offer">
+                        <input type="hidden" name="swapItem" value="<%= gameItem.itemCode %>">
+                    </div>
+                <div class="row">
+                    <div class="col-md-5 col-sm-5 col-xs-5">
+                        <button type="submit" class="btn btn-info">
+                                Confirm Swap
+                        </button>
+                    </div>
+                </div>
+                </form>
+                <% } else { %>
+                    <p>There are no items available for swapping</p>
+                <% } %>
+            </div>
+        </div>
+    </div>
+    <% include ../partials/footer %>
+</body>
+</html>

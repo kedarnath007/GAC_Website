@@ -1,0 +1,25 @@
+<!-- view/partials/user-navigation.ejs -->
+<div class="container-fluid" id="menu">
+	<div class="row">
+		
+			<div class="col-md-3">	
+			</div>
+
+			<div class="col-md-2">
+				<% if (user != undefined) { %>
+					<a href="/myItems?action=signout">Sign out</a>
+				<% } else { %>
+					<a href="/myItems">Sign in</a>
+				<% } %>
+			</div>
+			<div class="col-md-2">
+				<a href="/myItems">My Games</a>
+			</div>
+			<div class="col-md-2">
+				<a href="/mySwaps" >My Swaps</a>
+			</div>
+			<div class="col-md-2">
+				<a href="#">Cart</a>
+			</div>
+	</div>
+</div>

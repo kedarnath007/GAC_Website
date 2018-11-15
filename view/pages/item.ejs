@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Item</title>
+    <% include ../partials/import %>
+</head>
+
+<body>
+    <% include ../partials/header %>
+
+    <% include ../partials/user-navigation %>
+
+    <div class="container-fluid" id="A">
+        <div class="row" id="nav">
+            <% include ../partials/site-navigation %>
+            <div class="col-md-10" id="B">
+                    <div class = row>
+                        <div id="path">	
+                                    Home > Categories > NFS Most Wanted
+                        </div>
+                        <a href="/categories">
+                            <div>
+                                <button type="button" class="btn btn-info btn-lg btn3d"><span class="glyphicons glyphicons-unshare"></span> Categories</button>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="row">
+                        <div id="content">
+                            <% if(available) { %>
+                                <div class="col-md-5 col-sm-5 col-xs-5">
+                                    <p class ="ppp">
+                                        <%= gameItem.description %>
+                                    </p>
+                                </div>
+                                <div class="col-md-3 col-sm-3 col-xs-3" id="nn">
+                                    <img src=<%= gameItem.imageURL %> class="img-rounded img-responsive" alt="Game CD">
+                                </div>
+                                <div class="col-md-3" id="np">
+                                    <h3><b><u> <%= gameItem.itemName %></u></b></h3>
+                                    <% if(status == 'swapped') { %>
+                                        <span class="glyphicon glyphicon-refresh"></span> <p>You have swapped this Game </p>
+                                    <% } else if (status == 'pending') { %>
+                                        <span class="glyphicon glyphicon-refresh"></span> <p>You have a swap offer for this Game </p>
+                                        <a href="/mySwaps">
+                                            <div class="btn btn-info"> See the Offer</div>
+                                        </a>
+                                    <% } else if(status == undefined) { %>
+                                        <a href="/myItems">
+                                            <div class="btn btn-info"> <span class="glyphicon glyphicon-star"></span> Rate</div>
+                                        </a>
+                                        <a href="/myItems?action=offer&theItem=<%= gameItem.itemCode %>">
+                                            <div class="btn btn-info"> <span class="glyphicon glyphicon-refresh"></span> Swap</div>
+                                        </a>
+                                    <% } %>
+                                    <% if(error) { %>
+                                        </br>
+                                        <p>Sorry,you do not have any available games for swapping. Please add more games to start swapping again!</p></br>
+                                    <% } %>
+                                </div>
+                            <% } else { %>
+                                <p>The Game you have requested is not found</p>
+                            <% } %>
+                        </div>
+                     </div>
+            </div>
+        </div>
+    </div>
+    <% include ../partials/footer %>
+
+</body>
+</html>

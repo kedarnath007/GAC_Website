@@ -1,0 +1,195 @@
+	#header
+	{
+		background: url(../images/b1.jpg);
+		border: 2px solid black;
+	}
+		
+	#H1
+	{
+		background: white;
+		font-size: 55px;
+		border: 2px inset black;
+		padding-bottom: 30px;
+		font-family: bold;
+		text-align: center;
+		word-wrap: break-word;
+	}
+	#H11
+	{
+		font-size: 20px;
+		font-family: bold;
+		position: relative;
+		top: -25px;
+		word-wrap: break-word;
+	}
+	#H12
+	{
+		background: white;
+		position: absolute;
+		right: 2px;
+		border: 1px solid black;
+		word-wrap: break-word;
+	}
+	#H12 a
+	{
+		color: black;
+	}
+	#menu
+	{
+		background: linear-gradient(gray,white,white,gray,black);
+		height:30%;
+		font-size: 25px;
+	}
+	#menu a
+	{
+		color: black;
+	}
+
+	#content 
+	{
+    font-size: 15px; 
+    padding-top: 40px;
+    padding-left: 20px;
+	word-wrap: break-word;
+	}
+
+	#B
+	{
+		background: url(../images/g.jpg);
+		background-size: 100% 100%;
+		min-height: 550px;
+		max-height: 1000px;
+		font-size: 20px;
+		padding: 10px;
+		padding-left: 30px;
+	}
+
+	#A
+	{
+		background: lightgray;
+		min-height: 450px;
+
+	}
+	#nb 
+	{
+		font-size: 25px;
+		padding-top: 10px;
+		color: black;
+		text-align:center;	
+	}
+	#n1 a
+	{
+		color: black;
+		font-size: 30px;
+		width: 100%;
+		text-align: left;
+	}
+	#n1 .btn:hover
+	{
+		color: blue;
+		background: white;
+	}
+	#B #nn
+	{
+		position:absolute;
+		left: 10px;
+		height: 250px;
+		width: 200px;
+	}
+	#content2
+	{
+		padding-top: 180px;
+		padding-left: 20px;
+		word-wrap: break-word;
+	}
+	B .col-md-3
+	{
+		margin-top: 20px;
+	}
+	#B #np .btn
+	{
+		width: 100px;
+	}
+	
+	#B .ppp
+	{
+		margin-left: 60%;
+		width: 100%
+
+	}
+	#B #path
+	{
+		font-size:15px
+	}
+	#B #np
+	{
+		position: absolute;
+		padding-top: 230px;
+		padding-bottom:20px;
+		left: 10px;
+		word-wrap: break-word;
+	}
+	#B .btn:hover
+	{
+		color: blue;
+		background: white;
+
+	}
+
+	#rr
+	{
+		padding-top: 150px;
+	}
+	.rating
+	{
+		color: orange;
+	}
+	.half 
+	{
+    position:relative;
+	}
+   .half:after 
+   {
+    content:'';
+    position:absolute;
+    z-index:1;
+    background:white;
+    width: 50%;
+    height: 100%;
+    left: 47%;
+   }
+   #center
+   {
+	   text-align:center;
+   }
+   #table-padding
+   {
+	   margin-right:15px;
+   }
+   .btn3d {
+    position:relative;
+    top: -6px;
+    border:0;
+     transition: all 40ms linear;
+     margin-top:10px;
+     margin-bottom:10px;
+     margin-left:2px;
+     margin-right:2px;
+	}
+	.btn3d:active:focus,
+	.btn3d:focus:hover,
+	.btn3d:focus {
+    -moz-outline-style:none;
+         outline:medium none;
+	}
+	.btn3d:active, .btn3d.active {
+		top:2px;
+	}
+   .btn3d.btn-info {
+    box-shadow:0 0 0 1px #00a5c3 inset, 0 0 0 2px rgba(255,255,255,0.15) inset, 0 8px 0 0 #348FD2, 0 8px 8px 1px rgba(0,0,0,0.5);
+    background-color:#39B3D7;
+	}
+   .btn3d.btn-info:active, .btn3d.btn-info.active {
+    box-shadow:0 0 0 1px #00a5c3 inset, 0 0 0 1px rgba(255,255,255,0.15) inset, 0 1px 3px 1px rgba(0,0,0,0.3);
+    background-color: #39B3D7;
+	}
