@@ -87,6 +87,7 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
     itemsDB.find({UserID: userID},function(error,docs){
         if(!error){
             userItemsFromDB = [];
+            let total = docs.length;
             for(let i=0;i<docs.length;i++){
                 if(docs[i].Status == 'available'){
                     let item = itemDB.addItem(docs[i].itemCode,docs[i].itemName,
@@ -94,6 +95,10 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                         docs[i].UserID,docs[i].Status,docs[i].Initiated, docs[i].UserRating);
                     let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, undefined, undefined, undefined);
                     userItemsFromDB.push(userItemInstance);
+                    if(total == i+1){
+                        userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
+                        callback(userProfileInstance);
+                    }
                 }else if(docs[i].Status == 'swapped'){
                     let item = itemDB.addItem(docs[i].itemCode,docs[i].itemName,
                         docs[i].catalogCategory,docs[i].description,docs[i].rating,docs[i].imageURL,
@@ -105,6 +110,10 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                                     let swapItem = result;
                                     let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
                                     userItemsFromDB.push(userItemInstance);
+                                    if(total == i+1){
+                                        userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
+                                        callback(userProfileInstance);
+                                    }
                                 });
                             }
                         });
@@ -115,6 +124,10 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                                     let swapItem = result;
                                     let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
                                     userItemsFromDB.push(userItemInstance);
+                                    if(total == i+1){
+                                        userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
+                                        callback(userProfileInstance);
+                                    }
                                 });
                             }
                         });
@@ -129,6 +142,10 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                                itemDB.getItem(itemsDB, doc.SwapItemCode, function(result){
                                     var userItemInstance = new userItem.UserItem(item,docs[i].rating,docs[i].Status, 2, result, result.rating, result.UserRating);
                                     userItemsFromDB.push(userItemInstance);
+                                    if(total == i+1){
+                                        userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
+                                        callback(userProfileInstance);
+                                    }
                                 });
                             }
                         });
@@ -139,6 +156,10 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                                     itemDB.getItem(itemsDB, doc[j].itemCode, function(result){
                                         var userItemInstance = new userItem.UserItem(item,docs[i].rating,docs[i].Status, 1, result, result.rating, result.UserRating);
                                         userItemsFromDB.push(userItemInstance);
+                                        if(total == i+1){
+                                            userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
+                                            callback(userProfileInstance);
+                                        }
                                     });
                                 }
                             }
@@ -147,8 +168,8 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                 }
                 
             }
-            userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
-            callback(userProfileInstance);
+            // userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
+            // callback(userProfileInstance);
         }
     });
     // for(var i = 0; i < userProfiles.length; i++){
