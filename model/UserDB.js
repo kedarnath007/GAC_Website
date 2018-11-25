@@ -85,7 +85,7 @@ function addUser(usersDB, userParam, password, userID, callback){
 
 function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
     itemsDB.find({UserID: userID},function(error,docs){
-        if(!error){
+        if(!error && docs.length>0){
             userItemsFromDB = [];
             let total = docs.length;
             for(let i=0;i<docs.length;i++){
@@ -172,6 +172,8 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
             }
             // userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
             // callback(userProfileInstance);
+        }else{
+            callback(undefined);
         }
     });
     // for(var i = 0; i < userProfiles.length; i++){

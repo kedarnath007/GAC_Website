@@ -136,7 +136,7 @@ function rejectOrWithdrawItem(itemsDB,offersDB, item, swapItem, callback){
 };
 
 function acceptItem(itemsDB,offersDB,swapsDB, item, swapItem, callback){
-    itemsDB.updateMany({$or:[{itemCode:item},{itemCode:swapItem}]}, {Status:'swapped'}, {multi:true},function(error1,doc1){
+    itemsDB.updateMany({$or:[{itemCode:item},{itemCode:swapItem}]}, {Status:'swapped'} ,function(error1,doc1){
         if(!error1){
             offersDB.findOne({SwapItemCode:swapItem, itemCode:item}, function(error2, doc2){
                 if(!error2){

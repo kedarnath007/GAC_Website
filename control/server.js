@@ -233,23 +233,35 @@ app.get('/item', function(req, res) {
         if(req.session.theUser != undefined){
             itemDB.getItem(itemsDB,req.query.itemCode, function(result1){
                 if(result1 != undefined){
-                    let status=undefined;
-                    for(let i = 0; i < req.session.currentProfile.UserItems.length; i++){
-                        if(req.session.currentProfile.UserItems[i].SwapItem!=undefined){
-                            if(req.session.currentProfile.UserItems[i].SwapItem.itemCode == req.query.itemCode){
-                                status = req.session.currentProfile.UserItems[i].Status;
+                    if(req.session.currentProfile != undefined){
+                        let status=undefined;
+                        for(let i = 0; i < req.session.currentProfile.UserItems.length; i++){
+                            if(req.session.currentProfile.UserItems[i].SwapItem!=undefined){
+                                if(req.session.currentProfile.UserItems[i].SwapItem.itemCode == req.query.itemCode){
+                                    status = req.session.currentProfile.UserItems[i].Status;
+                                }
                             }
                         }
-                    }
-                    userDB.getUserName(usersDB, req.session.theUser, function(userResult){
-                        res.render('pages/item',{
-                            available: true,
-                            error:false,
-                            status: status,
-                            gameItem: result1,
-                            user : userResult
+                        userDB.getUserName(usersDB, req.session.theUser, function(userResult){
+                            res.render('pages/item',{
+                                available: true,
+                                error:false,
+                                status: status,
+                                gameItem: result1,
+                                user : userResult
+                            });
                         });
-                    });
+                    }else{
+                        userDB.getUserName(usersDB, req.session.theUser, function(userResult){
+                            res.render('pages/item',{
+                                available: true,
+                                error:false,
+                                status: undefined,
+                                gameItem: result1,
+                                user : userResult
+                            });
+                        });
+                    }
                     
                 }else{
                     userDB.getUserName(usersDB, req.session.theUser, function(userResult){
@@ -270,7 +282,7 @@ app.get('/item', function(req, res) {
                     res.render('pages/item',{
                                     available: true,
                                     error:false,
-                                    status: undefined,
+                                    status: 'unknown',
                                     gameItem: result1,
                                     user : undefined
                                 });
@@ -344,17 +356,26 @@ app.get('/contact', function(req, res) {
 app.get('/mySwaps', function(req, res) {
     var gameItems=[];
     if(req.session.theUser != undefined){
-        for(var i = 0; i < req.session.currentProfile.UserItems.length; i++){
-            if(req.session.currentProfile.UserItems[i].Status == 'pending'){
-                gameItems.push(req.session.currentProfile.UserItems[i]);
+        if(req.session.currentProfile!=undefined){
+            for(var i = 0; i < req.session.currentProfile.UserItems.length; i++){
+                if(req.session.currentProfile.UserItems[i].Status == 'pending'){
+                    gameItems.push(req.session.currentProfile.UserItems[i]);
+                }
             }
-        }
-        userDB.getUserName(usersDB, req.session.theUser, function(userResult){
-            res.render('pages/mySwaps', 
-            {   user: userResult,
-                swapItem: gameItems
+            userDB.getUserName(usersDB, req.session.theUser, function(userResult){
+                res.render('pages/mySwaps', 
+                {   user: userResult,
+                    swapItem: gameItems
+                });
             });
-        });
+        }else{
+            userDB.getUserName(usersDB, req.session.theUser, function(userResult){
+                res.render('pages/mySwaps', 
+                {   user: userResult,
+                    swapItem: undefined
+                });
+            });
+        }
         // res.render('pages/mySwaps', 
         // {   user: userDB.getUserName(req.session.theUser),
         //     swapItem: gameItems

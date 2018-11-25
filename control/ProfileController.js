@@ -23,18 +23,28 @@ app.post('/signIn', function(req,res){
                 userDB.validateCredentials(server.usersDB, req.body.inputEmail, req.body.inputPassword, function(userid){
                     if(userid!=undefined){
                         userDB.getUserProfile(server.itemsDB,server.swapsDB, server.offersDB, userid,function(result){
-                            var userProfile = result;
-                            req.session.theUser = userProfile.UserID;
-                            req.session.currentProfile = userProfile;
-                            userDB.getItemIDByUser(server.itemsDB,userProfile.UserID,function(result2){
-                                req.session.itemList = result2;
-                                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                            if(result == undefined){
+                                req.session.theUser = userid;
+                                userDB.getUserName(server.usersDB, userid, function(userResult){
                                     res.render('pages/myItems', 
-                                    {   userItemsDisplay: req.session.currentProfile.UserItems, 
+                                    {   userItemsDisplay: result, 
                                         user: userResult
                                     });
                                 });
-                            });
+                            }else{
+                                var userProfile = result;
+                                req.session.theUser = userProfile.UserID;
+                                req.session.currentProfile = userProfile;
+                                userDB.getItemIDByUser(server.itemsDB,userProfile.UserID,function(result2){
+                                    req.session.itemList = result2;
+                                    userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                        res.render('pages/myItems', 
+                                        {   userItemsDisplay: req.session.currentProfile.UserItems, 
+                                            user: userResult
+                                        });
+                                    });
+                                });
+                            }
                         });
                     }else{
                         res.render('pages/login',{user:undefined, error:true});
@@ -53,12 +63,22 @@ app.get('/myItems', function(req, res){
         if(theUser == undefined){
             res.render('pages/login',{user:undefined, error:false});
         }else{
-            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                res.render('pages/myItems', 
-                {   userItemsDisplay: req.session.currentProfile.UserItems, 
-                    user: userResult
+            if(req.session.currentProfile == undefined){
+                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                    res.render('pages/myItems', 
+                    {   userItemsDisplay: undefined, 
+                        user: userResult
+                    });
                 });
-            });
+            }else{
+                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                    res.render('pages/myItems', 
+                    {   userItemsDisplay: req.session.currentProfile.UserItems, 
+                        user: userResult
+                    });
+                });
+            }
+           
         }
         // //var userProfile = userDB.getUserProfile(server.itemsDB,users[0].UserID);
         // userDB.getUserProfile(server.itemsDB,server.swapsDB, server.offersDB, 1,function(result){
@@ -422,125 +442,141 @@ app.get('/myItems', function(req, res){
             else if(req.query.action == 'offer'){
                 itemDB.isValidItem(server.itemsDB,req.query.theItem, function(result){
                     if(result){
-                        let userProfile = req.session.currentProfile;
-                        //let containsItem = false;
-                        let userItem;
-                        //userItem = itemDB.getItem(req.query.theItem);
-                            let itemsList = req.session.itemList;
-                            let count = 0;
-                            if(itemsList.length == userProfile.UserItems.length){
-                                for(let i = 0; i < itemsList.length; i++){
-                                    for(let j = 0; j < userProfile.UserItems.length; j++){
-                                        if(itemsList[i]== userProfile.UserItems[j].Item.itemCode){
-                                            count++;
+                        console.log('hello inside 1');
+                        if(req.session.currentProfile == undefined){
+                            console.log('hello inside if condition');
+                            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
+                                    res.render('pages/item',{
+                                        available: true,
+                                        error: true,
+                                        status: undefined,
+                                        gameItem: userItemInstance,
+                                        user: userResult
+                                    });
+                                } );
+                            });
+                        }else{
+                            let userProfile = req.session.currentProfile;
+                            //let containsItem = false;
+                            let userItem;
+                            //userItem = itemDB.getItem(req.query.theItem);
+                                let itemsList = req.session.itemList;
+                                let count = 0;
+                                if(itemsList.length == userProfile.UserItems.length){
+                                    for(let i = 0; i < itemsList.length; i++){
+                                        for(let j = 0; j < userProfile.UserItems.length; j++){
+                                            if(itemsList[i]== userProfile.UserItems[j].Item.itemCode){
+                                                count++;
+                                            }
                                         }
                                     }
-                                }
-                                if(count == itemsList.length){
-                                    if(req.query.swapItem!=undefined){
-                                        itemDB.getItem(server.itemsDB, req.query.swapItem, function(swapItem){
-                                            for(let i = 0; i < userProfile.UserItems.length; i++){
-                                                if(req.query.theItem == userProfile.UserItems[i].Item.itemCode){
-                                                    offerDB.addOffer(server.itemsDB,server.offersDB,userProfile.UserItems[i].Item.UserID, swapItem.UserID, userProfile.UserItems[i].Item.itemCode, swapItem.itemCode, function(result){
-                                                        userProfile.UserItems[i].Status = 'pending';
-                                                        userProfile.UserItems[i].PendingStatus = 2;
-                                                        userProfile.UserItems[i].SwapItem = swapItem;
-                                                        userProfile.UserItems[i].SwapItemRating = swapItem.rating;
-                                                        req.session.currentProfile = userProfile;
-                                                        userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                                                            res.render('pages/myItems',{
-                                                                userItemsDisplay : req.session.currentProfile.UserItems,
-                                                                user: userResult
+                                    if(count == itemsList.length){
+                                        if(req.query.swapItem!=undefined){
+                                            itemDB.getItem(server.itemsDB, req.query.swapItem, function(swapItem){
+                                                for(let i = 0; i < userProfile.UserItems.length; i++){
+                                                    if(req.query.theItem == userProfile.UserItems[i].Item.itemCode){
+                                                        offerDB.addOffer(server.itemsDB,server.offersDB,userProfile.UserItems[i].Item.UserID, swapItem.UserID, userProfile.UserItems[i].Item.itemCode, swapItem.itemCode, function(result){
+                                                            userProfile.UserItems[i].Status = 'pending';
+                                                            userProfile.UserItems[i].PendingStatus = 2;
+                                                            userProfile.UserItems[i].SwapItem = swapItem;
+                                                            userProfile.UserItems[i].SwapItemRating = swapItem.rating;
+                                                            req.session.currentProfile = userProfile;
+                                                            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                                                res.render('pages/myItems',{
+                                                                    userItemsDisplay : req.session.currentProfile.UserItems,
+                                                                    user: userResult
+                                                                });
                                                             });
                                                         });
-                                                    });
+                                                    }
+                                                }
+                                            });
+                                            // swapItem = itemDB.getItem(req.query.swapItem);
+                                            // for(let i = 0; i < userProfile.UserItems.length; i++){
+                                            //     if(req.query.theItem == userProfile.UserItems[i].Item.itemCode){
+                                            //         userProfile.UserItems[i].Status = 'pending';
+                                            //         userProfile.UserItems[i].PendingStatus = 2;
+                                            //         userProfile.UserItems[i].SwapItem = swapItem;
+                                            //         userProfile.UserItems[i].SwapItemRating = swapItem.rating;
+                                            //     }
+                                            // }
+                                            // req.session.currentProfile = userProfile;
+                                            // userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                            //     res.render('pages/myItems',{
+                                            //         userItemsDisplay : req.session.currentProfile.UserItems,
+                                            //         user: uuserResult
+                                            //     });
+                                            // });
+                                            // res.render('pages/myItems',{
+                                            //     userItemsDisplay : req.session.currentProfile.UserItems,
+                                            //     user: userDB.getUserName(req.session.theUser)
+                                            // });
+                                        }
+                                        else{
+                                            var itemListView =[];
+                                            var available = false; 
+                                            for(var i = 0; i < userProfile.UserItems.length; i++){
+                                                if(userProfile.UserItems[i].Status == 'available'){
+                                                    available = true;
+                                                    itemListView.push(userProfile.UserItems[i].Item);
                                                 }
                                             }
+                                            if(available){
+                                                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                                    itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
+                                                        res.render('pages/swap',{
+                                                            available: true,
+                                                            itemListView: itemListView,
+                                                            gameItem : userItemInstance,
+                                                            user: userResult
+                                                        });
+                                                    } );
+                                                });
+                                                // res.render('pages/swap',{
+                                                //     available: true,
+                                                //     itemListView: itemListView,
+                                                //     gameItem : userItem,
+                                                //     user: userDB.getUserName(req.session.theUser)
+                                                // });
+                                            }
+                                            else{
+                                                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                                    itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
+                                                        res.render('pages/item',{
+                                                            available: true,
+                                                            error: true,
+                                                            status: undefined,
+                                                            gameItem: userItemInstance,
+                                                            user: userResult
+                                                        });
+                                                    } );
+                                                    
+                                                });
+                                                // res.render('pages/item',{
+                                                //     available: true,
+                                                //     error: true,
+                                                //     status: undefined,
+                                                //     gameItem: userItem,
+                                                //     user: userDB.getUserName(req.session.theUser)
+                                                // });
+                                            }
+                                        }
+                                    }
+                                    else{
+                                        userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                            res.render('pages/myItems',{
+                                                userItemsDisplay : req.session.currentProfile.UserItems,
+                                                user: userResult
+                                            });
                                         });
-                                        // swapItem = itemDB.getItem(req.query.swapItem);
-                                        // for(let i = 0; i < userProfile.UserItems.length; i++){
-                                        //     if(req.query.theItem == userProfile.UserItems[i].Item.itemCode){
-                                        //         userProfile.UserItems[i].Status = 'pending';
-                                        //         userProfile.UserItems[i].PendingStatus = 2;
-                                        //         userProfile.UserItems[i].SwapItem = swapItem;
-                                        //         userProfile.UserItems[i].SwapItemRating = swapItem.rating;
-                                        //     }
-                                        // }
-                                        // req.session.currentProfile = userProfile;
-                                        // userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                                        //     res.render('pages/myItems',{
-                                        //         userItemsDisplay : req.session.currentProfile.UserItems,
-                                        //         user: uuserResult
-                                        //     });
-                                        // });
                                         // res.render('pages/myItems',{
                                         //     userItemsDisplay : req.session.currentProfile.UserItems,
                                         //     user: userDB.getUserName(req.session.theUser)
                                         // });
                                     }
-                                    else{
-                                        var itemListView =[];
-                                        var available = false; 
-                                        for(var i = 0; i < userProfile.UserItems.length; i++){
-                                            if(userProfile.UserItems[i].Status == 'available'){
-                                                available = true;
-                                                itemListView.push(userProfile.UserItems[i].Item);
-                                            }
-                                        }
-                                        if(available){
-                                            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                                                itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
-                                                    res.render('pages/swap',{
-                                                        available: true,
-                                                        itemListView: itemListView,
-                                                        gameItem : userItemInstance,
-                                                        user: userResult
-                                                    });
-                                                } );
-                                            });
-                                            // res.render('pages/swap',{
-                                            //     available: true,
-                                            //     itemListView: itemListView,
-                                            //     gameItem : userItem,
-                                            //     user: userDB.getUserName(req.session.theUser)
-                                            // });
-                                        }
-                                        else{
-                                            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                                                itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
-                                                    res.render('pages/item',{
-                                                        available: true,
-                                                        error: true,
-                                                        status: undefined,
-                                                        gameItem: userItemInstance,
-                                                        user: userResult
-                                                    });
-                                                } );
-                                                
-                                            });
-                                            // res.render('pages/item',{
-                                            //     available: true,
-                                            //     error: true,
-                                            //     status: undefined,
-                                            //     gameItem: userItem,
-                                            //     user: userDB.getUserName(req.session.theUser)
-                                            // });
-                                        }
-                                    }
                                 }
-                                else{
-                                    userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                                        res.render('pages/myItems',{
-                                            userItemsDisplay : req.session.currentProfile.UserItems,
-                                            user: userResult
-                                        });
-                                    });
-                                    // res.render('pages/myItems',{
-                                    //     userItemsDisplay : req.session.currentProfile.UserItems,
-                                    //     user: userDB.getUserName(req.session.theUser)
-                                    // });
-                                }
-                            }
+                             }
                     }
                     else{
                         userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
