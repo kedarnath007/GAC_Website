@@ -97,6 +97,71 @@ function isValidItem(itemsDB,item,callback){
     // }
 };
 
+function deleteItem(itemsDB,item,callback){
+    itemsDB.deleteOne({itemCode:item}, function(error,doc){
+        if(!error){
+            callback(true);
+        }else{
+            callback(false);
+        }
+    });
+};
+
+function updateItemStatus(itemsDB,item,status, callback){
+    itemsDB.findOneAndUpdate({itemCode:item}, {Status:status}, function(error,doc){
+        if(!error){
+            callback(true);
+        }else{
+            callback(false);
+        }
+    });
+};
+
+function rejectOrWithdrawItem(itemsDB,offersDB, item, swapItem, callback){
+    console.log(item);
+    console.log(swapItem);
+    itemsDB.updateMany({$or:[{itemCode:item},{itemCode:swapItem}]}, {Status:'available'}, function(error,doc){
+        if(!error){
+            offersDB.deleteOne({SwapItemCode:swapItem, itemCode:item}, function(err, doc){
+                if(!err){
+                    callback(true);
+                }else{
+                    callback(false);
+                }
+            });
+        }else{
+            callback(false);
+        }
+    });
+};
+
+function acceptItem(itemsDB,offersDB,swapsDB, item, swapItem, callback){
+    itemsDB.updateMany({$or:[{itemCode:item},{itemCode:swapItem}]}, {Status:'swapped'}, {multi:true},function(error1,doc1){
+        if(!error1){
+            offersDB.findOne({SwapItemCode:swapItem, itemCode:item}, function(error2, doc2){
+                if(!error2){
+                    var swap = new swapsDB({UserID:doc2.UserID,SwapUserID:doc2.SwapUserID,itemCode:doc2.itemCode,SwapItemCode:doc2.SwapItemCode});
+                    swap.save();
+                    offersDB.deleteOne({SwapItemCode:swapItem, itemCode:item}, function(error3, doc3){
+                        if(!error3){
+                            callback(true);
+                        }else{
+                            console.log(error3);
+                            callback(false);
+                        }
+                    });
+                }else{
+                    console.log(error2);
+                    callback(false);
+                }
+            });
+        }else{
+            console.log(error1);
+            callback(false);
+        }
+    });
+};
+
 module.exports = {
     getItem: getItem,
     addItem: addItem,
@@ -104,5 +169,9 @@ module.exports = {
     //getItems: getItems,
     getItemByCategory: getItemByCategory,
     getUniqueCategories: getUniqueCategories,
-    isValidItem: isValidItem
+    isValidItem: isValidItem,
+    deleteItem:deleteItem,
+    updateItemStatus:updateItemStatus,
+    rejectOrWithdrawItem:rejectOrWithdrawItem,
+    acceptItem:acceptItem
 }

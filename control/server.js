@@ -4,7 +4,7 @@ var userDB = require('../model/UserDB.js');
 var session = require('express-session');
 var mongoose = require('mongoose');
 var itemsModel = require('../model/Item.js');
-
+var bodyParser = require("body-parser");
 
 mongoose.connect('mongodb://localhost/gacdb');
 
@@ -73,6 +73,10 @@ app.use(session({
     secret: 'key',
     saveUninitialized: false,
     resave: false
+}));
+
+app.use(bodyParser.urlencoded({
+    extended: true
 }));
 
 

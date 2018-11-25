@@ -104,9 +104,10 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                         docs[i].catalogCategory,docs[i].description,docs[i].rating,docs[i].imageURL,
                         docs[i].UserID,docs[i].Status,docs[i].Initiated, docs[i].UserRating);
                     if(docs[i].Initiated == 1){
-                        swapsDB.find({UserID: docs[i].UserID, itemCode:docs[i].itemCode}, function(error, doc){
+                        swapsDB.findOne({UserID: docs[i].UserID, itemCode:docs[i].itemCode}, function(error, doc){
                             if(!error){
-                                itemDB.getItem(itemsDB, doc.SwapUserID, function(result){
+                                console.log(doc.SwapItemCode);
+                                itemDB.getItem(itemsDB, doc.SwapItemCode, function(result){
                                     let swapItem = result;
                                     let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
                                     userItemsFromDB.push(userItemInstance);
@@ -118,8 +119,9 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                             }
                         });
                     }else{
-                        swapsDB.find({SwapUserID: docs[i].UserID, SwapItemCode:docs[i].itemCode}, function(error, doc){
+                        swapsDB.findOne({SwapUserID: docs[i].UserID, SwapItemCode:docs[i].itemCode}, function(error, doc){
                             if(!error){
+                                console.log(doc.itemCode);
                                 itemDB.getItem(itemsDB, doc.itemCode, function(result){
                                     let swapItem = result;
                                     let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
@@ -262,6 +264,19 @@ function getUserName(usersDB,userID,callback){
     });
 };
 
+function validateCredentials(usersDB,email, password, callback){
+    usersDB.findOne({EmailAddress:email, Password:password}, function(error,doc){
+        if(!error){
+            if(doc){
+                callback(doc._id);
+            }else{
+                callback(undefined);
+            }
+        }else{
+            callback(undefined);
+        }
+    });
+};
 // function getUserName(userID){
 //     var userName;
 //     for(var i = 0; i < users.length; i++){
@@ -284,5 +299,6 @@ module.exports = {
     getUserName: getUserName,
     getItemIDByUser: getItemIDByUser,
     getItemsByUserCategory: getItemsByUserCategory,
-    getUniqueCategoriesByUserCategory: getUniqueCategoriesByUserCategory
+    getUniqueCategoriesByUserCategory: getUniqueCategoriesByUserCategory,
+    validateCredentials:validateCredentials
 }

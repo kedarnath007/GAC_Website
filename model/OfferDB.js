@@ -1,10 +1,32 @@
 
 
-function addOffer(offersDB, UserID, SwapUserID, itemCode, SwapItemCode, callback){
-    var offerItem = new offersDB({UserID:UserID,SwapUserID:SwapUserID, itemCode:itemCode, SwapItemCode:SwapItemCode});
-    offerItem.save(function(err,result ){
-        if(!err){
-            callback(true);
+function addOffer(itemsDB, offersDB, UserID, SwapUserID, item, swapItem, callback){
+
+    itemsDB.updateMany({$or:[{itemCode:item},{itemCode:swapItem}]},{Status:'pending'}, {multi:true},function(error1,doc1){
+        if(!error1){
+            itemsDB.updateOne({itemCode:item}, {Initiated:1}, function(error2, doc2){
+                if(!error2){
+                    itemsDB.updateOne({itemCode:swapItem}, {Initiated:0}, function(error3, doc2){
+                        if(!error3){
+                            let offerItem = new offersDB({UserID:UserID,SwapUserID:SwapUserID, itemCode:item, SwapItemCode:swapItem});
+                            offerItem.save(function(err,result ){
+                                if(!err){
+                                    callback(true);
+                                }else{
+                                    callback(false);
+                                }
+                            });
+                        }else{
+                            callback(false);
+                        }
+                    });
+                }else{
+                    callback(false);
+                }
+            });  
+        }else{
+            console.log(error1);
+            callback(false);
         }
     });
 };
