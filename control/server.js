@@ -356,7 +356,7 @@ app.get('/contact', function(req, res) {
 app.get('/mySwaps', function(req, res) {
     var gameItems=[];
     if(req.session.theUser != undefined){
-        if(req.session.currentProfile!=undefined){
+        if(req.session.currentProfile != undefined){
             for(var i = 0; i < req.session.currentProfile.UserItems.length; i++){
                 if(req.session.currentProfile.UserItems[i].Status == 'pending'){
                     gameItems.push(req.session.currentProfile.UserItems[i]);
@@ -384,7 +384,7 @@ app.get('/mySwaps', function(req, res) {
     else{
         res.render('pages/mySwaps',
         {   user: undefined,
-            swapItem:gameItems
+            swapItem:undefined
         });    
     }
 });

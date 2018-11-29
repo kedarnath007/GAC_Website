@@ -20,52 +20,61 @@
                     <div class="row">
                             <div id="table-padding"> 
                                 <% if(userItemsDisplay != undefined) { %>
-                                <table class="table table-striped">
-                                    <thead>
-                                      <tr>
-                                          <th>Game</th>
-                                          <th>Category</th>
-                                          <th>My Rating</th>
-                                          <th>Swapped</th>
-                                      </tr>
-                                    </thead>
-                                     <tbody>
-                                        <% for (i = 0; i < userItemsDisplay.length; i++) { %>
+                                    <% if(userItemsDisplay.length > 0) { %>
+                                        <table class="table table-striped">
+                                            <thead>
                                             <tr>
-                                                <td><%= userItemsDisplay[i].Item.itemName %></td>
-                                                <td><%= userItemsDisplay[i].Item.catalogCategory %></td>
-                                                <td>
-                                                    <div class="rating">
-                                                        <% for (j = 0; j < userItemsDisplay[i].Rating; j++) { %>
-                                                            <span class="glyphicon glyphicon-star"></span>
-                                                        <% } %>
-                                                    </div>
-                                                </td>
-                                                <td> 
-                                                    <div class="row">
-                                                        <div class="col-md-2">
-                                                            <% if(userItemsDisplay[i].Status == 'pending') { %>
-                                                                <span class="glyphicon glyphicon-refresh"></span>
-                                                            <% } else if (userItemsDisplay[i].Status == 'swapped') { %>
-                                                                <span class="glyphicon glyphicon-check"></span>
-                                                            <% } %>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                                <a href="/myItems?action=update&theItem=<%= userItemsDisplay[i].Item.itemCode %>">
-                                                                    <div class="btn btn-info">Update</div>
-                                                                </a>
-                                                        </div>
-                                                        <div class="col-md-3">
-                                                                <a href="/myItems?action=delete&theItem=<%= userItemsDisplay[i].Item.itemCode %>">
-                                                                    <div class="btn btn-info">Delete</div>
-                                                                </a>
-                                                        </div>
-                                                    </div>
-                                                </td>
+                                                <th>Game</th>
+                                                <th>Category</th>
+                                                <th>My Rating</th>
+                                                <th>Swapped</th>
                                             </tr>
-                                        <% } %>
-                                    </tbody>
-                                </table> 
+                                            </thead>
+                                            <tbody>
+                                                <% for (i = 0; i < userItemsDisplay.length; i++) { %>
+                                                    <tr>
+                                                        <td><%= userItemsDisplay[i].Item.itemName %></td>
+                                                        <td><%= userItemsDisplay[i].Item.catalogCategory %></td>
+                                                        <td>
+                                                            <div class="rating">
+                                                                <% for (j = 0; j < userItemsDisplay[i].Rating; j++) { %>
+                                                                    <span class="glyphicon glyphicon-star"></span>
+                                                                <% } %>
+                                                            </div>
+                                                        </td>
+                                                        <td> 
+                                                            <div class="row">
+                                                                <div class="col-md-2">
+                                                                    <% if(userItemsDisplay[i].Status == 'pending') { %>
+                                                                        <span class="glyphicon glyphicon-refresh"></span>
+                                                                    <% } else if (userItemsDisplay[i].Status == 'swapped') { %>
+                                                                        <span class="glyphicon glyphicon-check"></span>
+                                                                    <% } %>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                        <a href="/myItems?action=update&theItem=<%= userItemsDisplay[i].Item.itemCode %>">
+                                                                            <div class="btn btn-info">Update</div>
+                                                                        </a>
+                                                                </div>
+                                                                <div class="col-md-3">
+                                                                        <a href="/myItems?action=delete&theItem=<%= userItemsDisplay[i].Item.itemCode %>">
+                                                                            <div class="btn btn-info">Delete</div>
+                                                                        </a>
+                                                                        <% if(locals.messages) { %>
+                                                                            <% if(userItemsDisplay[i].Item.itemCode == pendingItem){ %>
+                                                                                <p>*Cannot delete the game because you have an offer</p>
+                                                                            <% } %>
+                                                                        <% } %>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                <% } %>
+                                            </tbody>
+                                        </table> 
+                                    <% } else { %>
+                                        <p>You donot have any Items yet!</p>
+                                    <% } %> 
                                 <% } else { %>
                                     <p>You donot have any Items yet!</p>
                                 <% } %> 

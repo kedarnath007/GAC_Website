@@ -97,12 +97,63 @@ function isValidItem(itemsDB,item,callback){
     // }
 };
 
-function deleteItem(itemsDB,item,callback){
-    itemsDB.deleteOne({itemCode:item}, function(error,doc){
+function deleteItem(itemsDB,offersDB,swapsDB, item,callback){
+    itemsDB.findOne({itemCode:item}, function(error,doc){
         if(!error){
-            callback(true);
+            if(doc.Status == 'pending'){
+                callback('unhandled');
+            }else if(doc.Status == 'swapped'){
+                if(doc.Initiated == 1){
+                    swapsDB.findOne({itemCode: item},function(error1, doc1){
+                        itemsDB.findOneAndUpdate({itemCode:doc1.SwapItemCode}, {Status:'available'}, function(error2, doc2){
+                            if(!error2){
+                                swapsDB.deleteOne({itemCode:item}, function(error3, doc3){
+                                    if(!error3){
+                                        itemsDB.deleteOne({itemCode:item}, function(err1, dec4){
+                                            callback('successful');
+                                        });
+                                    }else{
+                                        callback('unsuccessful');
+                                    }
+                                });
+                            }else{
+                                callback('unsuccessful');
+                            }
+                        });
+                    });
+                }else{
+                    swapsDB.findOne({SwapItemCode: item},function(error1, doc1){
+                        itemsDB.findOneAndUpdate({itemCode:doc1.itemCode}, {Status:'available'}, function(error2, doc2){
+                            if(!error2){
+                                console.log('set to update');
+                                swapsDB.deleteOne({SwapItemCode: item}, function(error3, doc3){
+                                    if(!error3){
+                                        console.log('deleted from swapsDB');
+                                        itemsDB.deleteOne({itemCode:item}, function(err1, dec4){
+                                            console.log('deleted from ItemsDB');
+                                            callback('successful');
+                                        });
+                                    }else{
+                                        callback('unsuccessful');
+                                    }
+                                });
+                            }else{
+                                callback('unsuccessful');
+                            }
+                        });
+                    });
+                }
+            }else if(doc.Status == 'available'){
+                itemsDB.deleteOne({itemCode:item}, function(error2,doc2){
+                    if(!error2){
+                        callback('successful');
+                    }else{
+                        callback('unsuccessful');
+                    }
+                });
+            }
         }else{
-            callback(false);
+            callback('unsuccessful');
         }
     });
 };
@@ -118,8 +169,6 @@ function updateItemStatus(itemsDB,item,status, callback){
 };
 
 function rejectOrWithdrawItem(itemsDB,offersDB, item, swapItem, callback){
-    console.log(item);
-    console.log(swapItem);
     itemsDB.updateMany({$or:[{itemCode:item},{itemCode:swapItem}]}, {Status:'available'}, function(error,doc){
         if(!error){
             offersDB.deleteOne({SwapItemCode:swapItem, itemCode:item}, function(err, doc){

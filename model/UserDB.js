@@ -93,7 +93,7 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                     let item = itemDB.addItem(docs[i].itemCode,docs[i].itemName,
                         docs[i].catalogCategory,docs[i].description,docs[i].rating,docs[i].imageURL,
                         docs[i].UserID,docs[i].Status,docs[i].Initiated, docs[i].UserRating);
-                    let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, undefined, undefined, undefined);
+                    let userItemInstance = new userItem.UserItem(item,docs[i].rating,docs[i].Status, undefined, undefined, undefined, undefined);
                     userItemsFromDB.push(userItemInstance);
                     if(total == i+1){
                         userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
@@ -109,7 +109,7 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                                 console.log(doc.SwapItemCode);
                                 itemDB.getItem(itemsDB, doc.SwapItemCode, function(result){
                                     let swapItem = result;
-                                    let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
+                                    let userItemInstance = new userItem.UserItem(item,docs[i].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
                                     userItemsFromDB.push(userItemInstance);
                                     if(total == i+1){
                                         userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)
@@ -124,7 +124,7 @@ function getUserProfile(itemsDB,swapsDB, offersDB, userID, callback){
                                 console.log(doc.itemCode);
                                 itemDB.getItem(itemsDB, doc.itemCode, function(result){
                                     let swapItem = result;
-                                    let userItemInstance = new userItem.UserItem(item,docs[1].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
+                                    let userItemInstance = new userItem.UserItem(item,docs[i].rating,docs[i].Status, undefined, swapItem, swapItem.rating, swapItem.UserRating);
                                     userItemsFromDB.push(userItemInstance);
                                     if(total == i+1){
                                         userProfileInstance = new userProfile.UserProfile(userID,userItemsFromDB)

@@ -5,17 +5,20 @@ var offerDB = require('../model/OfferDB.js');
 var session = require('express-session');
 var server = require('./server.js');
 var expressValidator = require('express-validator');
+const { sanitizeBody } = require('express-validator/filter');
 var app = module.exports= express();
 app.set('views', '../view');
 app.use(expressValidator());
 
-app.post('/signIn', function(req,res){
+
+app.post('/signIn',sanitizeBody('inputEmail').trim().escape(), function(req,res){
     if(req.body == undefined){
         res.render('pages/login',{user:undefined, error:false});
     }else{
         if(req.body.inputEmail != undefined && req.body.inputPassword != undefined){
             req.check('inputEmail', 'Invalid Email Address').isEmail();
-            req.check('inputPassword', 'Invalid Last Name').isLength({ min: 3 });
+            req.check('inputPassword', 'Password should be a combination of letters and numeric values').isLength({ min: 3 });
+            req.check('inputPassword', 'Password should be a combination of letters and numeric values').isAlphanumeric();
             var errors = req.validationErrors();
             if(errors){
                 res.render('pages/login',{user:undefined, error:true});
@@ -373,17 +376,34 @@ app.get('/myItems', function(req, res){
 
                                     for(let i = 0; i < userProfile.UserItems.length; i++){
                                         for( let j=0; j< req.session.itemList.length ; j++){
-                                            if(userProfile.UserItems[i].Item.itemCode == req.session.itemList[j]){
+                                            console.log(userProfile.UserItems[i].Item.itemCode);
+                                            console.log(userProfile.UserItems[i].Item.Status);
+                                            console.log(userProfile.UserItems[i].Item.Status);
+                                            if(userProfile.UserItems[i].Item.itemCode == req.session.itemList[j] && userProfile.UserItems[i].Status != 'pending' ){
+                                                console.log('inside splice');
                                                 req.session.itemList.splice(j,1);
                                             }
                                         }
-                                        if(userProfile.UserItems[i].Item.itemCode == req.query.theItem){
+                                        console.log(userProfile.UserItems[i].Item.itemCode);
+                                        console.log(req.query.theItem);
+                                        console.log(userProfile.UserItems[i].Item.Status);
+                                        if(userProfile.UserItems[i].Item.itemCode == req.query.theItem && userProfile.UserItems[i].Status != 'pending'){
+                                            console.log('inside splice');
                                             userProfile.UserItems.splice(i,1);
                                         }
                                     }
                                     req.session.currentProfile = userProfile;
-                                    itemDB.deleteItem(server.itemsDB, req.query.theItem, function(result){
-                                        if(result){
+                                    itemDB.deleteItem(server.itemsDB, server.offersDB, server.swapsDB, req.query.theItem, function(result){
+                                        if(result == 'unhandled'){
+                                            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                                res.render('pages/myItems',{
+                                                    messages: true,
+                                                    pendingItem: req.query.theItem,
+                                                    userItemsDisplay : req.session.currentProfile.UserItems,
+                                                    user: userResult
+                                                });
+                                            });
+                                        }else if(result == 'successful'){
                                             userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
                                                 res.render('pages/myItems',{
                                                     userItemsDisplay : req.session.currentProfile.UserItems,
@@ -442,9 +462,7 @@ app.get('/myItems', function(req, res){
             else if(req.query.action == 'offer'){
                 itemDB.isValidItem(server.itemsDB,req.query.theItem, function(result){
                     if(result){
-                        console.log('hello inside 1');
                         if(req.session.currentProfile == undefined){
-                            console.log('hello inside if condition');
                             userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
                                 itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
                                     res.render('pages/item',{
@@ -476,19 +494,44 @@ app.get('/myItems', function(req, res){
                                             itemDB.getItem(server.itemsDB, req.query.swapItem, function(swapItem){
                                                 for(let i = 0; i < userProfile.UserItems.length; i++){
                                                     if(req.query.theItem == userProfile.UserItems[i].Item.itemCode){
-                                                        offerDB.addOffer(server.itemsDB,server.offersDB,userProfile.UserItems[i].Item.UserID, swapItem.UserID, userProfile.UserItems[i].Item.itemCode, swapItem.itemCode, function(result){
-                                                            userProfile.UserItems[i].Status = 'pending';
-                                                            userProfile.UserItems[i].PendingStatus = 2;
-                                                            userProfile.UserItems[i].SwapItem = swapItem;
-                                                            userProfile.UserItems[i].SwapItemRating = swapItem.rating;
-                                                            req.session.currentProfile = userProfile;
-                                                            userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
-                                                                res.render('pages/myItems',{
-                                                                    userItemsDisplay : req.session.currentProfile.UserItems,
-                                                                    user: userResult
+                                                        if(userProfile.UserItems[i].Item.Status == 'swapped' || swapItem.Status == 'swapped'){
+                                                            var itemListView =[];
+                                                            var available = false; 
+                                                            for(var j = 0; j < userProfile.UserItems.length; j++){
+                                                                if(userProfile.UserItems[j].Status == 'available'){
+                                                                    available = true;
+                                                                    itemListView.push(userProfile.UserItems[j].Item);
+                                                                }
+                                                            }
+                                                            if(available){
+                                                                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                                                    itemDB.getItem(server.itemsDB,req.query.theItem, function(userItemInstance){
+                                                                        res.render('pages/swap',{
+                                                                            available: true,
+                                                                            itemListView: itemListView,
+                                                                            gameItem : userItemInstance,
+                                                                            user: userResult
+                                                                        });
+                                                                    } );
                                                                 });
+                                                            }
+                                                        }else{
+                                                            offerDB.addOffer(server.itemsDB,server.offersDB,userProfile.UserItems[i].Item.UserID, swapItem.UserID, userProfile.UserItems[i].Item.itemCode, swapItem.itemCode, function(result){
+                                                                if(result){
+                                                                    userProfile.UserItems[i].Status = 'pending';
+                                                                    userProfile.UserItems[i].PendingStatus = 2;
+                                                                    userProfile.UserItems[i].SwapItem = swapItem;
+                                                                    userProfile.UserItems[i].SwapItemRating = swapItem.rating;
+                                                                    req.session.currentProfile = userProfile;
+                                                                    userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                                                        res.render('pages/myItems',{
+                                                                            userItemsDisplay : req.session.currentProfile.UserItems,
+                                                                            user: userResult
+                                                                        });
+                                                                    });
+                                                                }
                                                             });
-                                                        });
+                                                        }
                                                     }
                                                 }
                                             });
