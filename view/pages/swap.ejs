@@ -46,7 +46,7 @@
                                         <tr>
                                             <td>
                                                 <div class="custom-control custom-radio">
-                                                        <input type="radio" class="custom-control-input" value="<%= itemListView[i].itemCode %>" name="theItem">
+                                                        <input type="radio" class="custom-control-input" value="<%= itemListView[i].itemCode %>" name="theItem" <% if(i==0) { %> checked <% } %> >
                                                         <label class="custom-control-label" for="defaultGroupExample1"><%= itemListView[i].itemName %></label>
                                                 </div>
                                             </td>

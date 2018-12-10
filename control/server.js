@@ -235,10 +235,15 @@ app.get('/item', function(req, res) {
                 if(result1 != undefined){
                     if(req.session.currentProfile != undefined){
                         let status=undefined;
+                        if(result1.Status == 'swapped' || result1.Status == 'pending'){
+                            status = "unknown";
+                        }
                         for(let i = 0; i < req.session.currentProfile.UserItems.length; i++){
                             if(req.session.currentProfile.UserItems[i].SwapItem!=undefined){
                                 if(req.session.currentProfile.UserItems[i].SwapItem.itemCode == req.query.itemCode){
                                     status = req.session.currentProfile.UserItems[i].Status;
+                                }else if(req.session.currentProfile.UserItems[i].Item.itemCode == req.query.itemCode){
+                                    status = "unknown";
                                 }
                             }
                         }

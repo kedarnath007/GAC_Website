@@ -10,7 +10,157 @@ var app = module.exports= express();
 app.set('views', '../view');
 app.use(expressValidator());
 
+//Below code is called from the Rate button of Item page
+app.get('/rating', function(req, res){
+    let theUser = req.session.theUser;
+    if(theUser == undefined){
+        res.render('pages/login',{user:undefined, error:false});
+    }else{
+        if(req.query.theItem == undefined){
+            itemDB.getUniqueCategories(server.itemsDB, function(result1){
+                itemDB.getItemsFromDB(server.itemsDB, function(result2){
+                    res.render('pages/categories', {
+                        category: result1,
+                        gameItems: result2,
+                        user : undefined
+                    });
+                });
+            });
+        }else{
+            if(req.query.itemRating != undefined && req.query.userRating != undefined){
+                let itemCode = req.query.theItem;
+                itemDB.updateRating(server.itemsDB, req.query.theItem, req.query.itemRating, req.query.userRating, function(result){
+                    if(result){
+                        itemDB.getItem(server.itemsDB,req.query.theItem, function(result1){
+                            if(result1 != undefined){
+                                if(req.session.currentProfile != undefined){
+                                    let status=undefined;
+                                    for(let i = 0; i < req.session.currentProfile.UserItems.length; i++){
+                                        if(req.session.currentProfile.UserItems[i].SwapItem!=undefined){
+                                            if(req.session.currentProfile.UserItems[i].SwapItem.itemCode == req.query.itemCode){
+                                                status = req.session.currentProfile.UserItems[i].Status;
+                                            }else if(req.session.currentProfile.UserItems[i].Item.itemCode == req.query.itemCode){
+                                                status = "unknown";
+                                            }
+                                        }
+                                    }
+                                    userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                        res.render('pages/item',{
+                                            available: true,
+                                            error:false,
+                                            status: status,
+                                            gameItem: result1,
+                                            user : userResult
+                                        });
+                                    });
+                                }else{
+                                    userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                        res.render('pages/item',{
+                                            available: true,
+                                            error:false,
+                                            status: undefined,
+                                            gameItem: result1,
+                                            user : userResult
+                                        });
+                                    });
+                                }
+                                
+                            }else{
+                                userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                                    res.render('pages/item',{
+                                        available:false,
+                                        user : userResult
+                                    });
+                                });
+                                // res.render('pages/item',{
+                                //     available:false,
+                                //     user : userDB.getUserName(req.session.theUser)
+                                // });
+                            }
+                        });
+                    }else{
+                        console.log('received here');
+                        itemDB.getUniqueCategories(server.itemsDB, function(result1){
+                            itemDB.getItemsFromDB(server.itemsDB, function(result2){
+                                res.render('pages/categories', {
+                                    category: result1,
+                                    gameItems: result2,
+                                    user : undefined
+                                });
+                            });
+                        });
+                    }
+                });
+            }else{
+                itemDB.getItem(server.itemsDB,req.query.theItem, function(result1){
+                    userDB.getUserName(server.usersDB, req.session.theUser, function(userResult){
+                        res.render('pages/rating',{
+                            available: true,
+                            error:false,
+                            status: "unknown",
+                            gameItem: result1,
+                            user : userResult
+                        });
+                    });
+                });
+            }
+        }
+    }
+});
 
+//Below code is used to render the userRegister page
+app.get('/userRegister', function(req, res) {
+     res.render('pages/userRegister',{user: undefined});
+});
+
+//Below code will handle the POST data submitted from the userRegister page
+app.post('/userRegister',sanitizeBody('first_name').trim().escape(),sanitizeBody('last_name').trim().escape(),
+sanitizeBody('email').trim().escape(),sanitizeBody('address1').trim().escape(),sanitizeBody('address2').trim().escape(),
+sanitizeBody('city').trim().escape(),sanitizeBody('state').trim().escape(),sanitizeBody('country').trim().escape(),
+sanitizeBody('postcode').trim().escape(),sanitizeBody('password').trim().escape(), function(req, res) {
+    if(req.body == undefined){
+        res.render('pages/userRegister',{user: undefined});
+    }else{
+        req.check('email', 'Invalid Email Address').isEmail();
+        req.check('first_name', 'Please enter your name correctly').isLength({min:2});
+        req.check('last_name', 'Please enter your name correctly').isLength({min:2});
+        req.check('address1', 'Please enter your address correctly').isLength({min:2});
+        req.check('city', 'Please enter a correct city').isLength({min:2});
+        req.check('state', 'Please enter a correct state').isLength({min:2});
+        req.check('country', 'Please enter the name of country correctly').isLength({min:2});
+        req.check('postcode', 'Please enter a valid postcode').isNumeric();
+        req.check('password', 'Password should have a minimum length of 5').isLength({ min: 5 });
+        req.check('password', 'Password should be a combination of letters and numeric values').isAlphanumeric();
+        req.check('password', 'Password should match').matches(req.body.password_confirmation);
+        req.check('password_confirmation', 'Password should have a minimum length of 5').isLength({ min: 5 });
+        req.check('password_confirmation', 'Password should be a combination of letters and numeric values').isAlphanumeric();
+        req.check('password_confirmation', 'Password should match').matches(req.body.password);
+        var errors = req.validationErrors();
+        if(errors){
+            console.log(errors);
+            res.render('pages/userRegister',{user:undefined, error:errors});
+        }else{
+            userDB.checkEmail(server.usersDB, req.body.email, function(resultout){
+                if(resultout == undefined){
+                    userDB.getMaxID(server.usersDB, function(result){
+                        var userInstance = userDB.createUser(result+1,req.body.first_name, req.body.last_name,req.body.email,req.body.address1,req.body.address2,
+                            req.body.city,req.body.state,req.body.postcode,req.body.country);
+                        
+                        userDB.addUser(server.usersDB,userInstance,req.body.password,function(result){
+                            if(result){
+                                res.render('pages/login',{user:undefined, error:false, success:true});
+                            }
+                        });
+                    });
+                }else{
+                    res.render('pages/login',{user:undefined, error:false, exists:true});
+                }
+            });
+        }
+    }
+});
+
+//Below code to handle the data when Login button is pressed.
 app.post('/signIn',sanitizeBody('inputEmail').trim().escape(), function(req,res){
     if(req.body == undefined){
         res.render('pages/login',{user:undefined, error:false});

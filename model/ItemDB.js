@@ -211,6 +211,26 @@ function acceptItem(itemsDB,offersDB,swapsDB, item, swapItem, callback){
     });
 };
 
+function updateRating(itemsDB, item, itemRating,userRating, callback){
+    itemsDB.findOne({itemCode:item}, function(err,docs){
+        if(!err && docs!= undefined){
+            var averageItemRating = Number(((Number(itemRating) + Number(docs.rating))/2).toFixed(0));
+            var averageUserRating = Number(((Number(userRating) + Number(docs.UserRating))/2).toFixed(0));
+            itemsDB.updateOne({itemCode:item}, {rating:averageItemRating, UserRating: averageUserRating}, function(error, doc){
+                if(!error){
+                    callback(true);
+                } else {
+                    console.log(error);
+                    callback(false);
+                }
+            });
+        }else{
+            callback(undefined);
+        }
+    });
+};
+
+
 module.exports = {
     getItem: getItem,
     addItem: addItem,
@@ -222,5 +242,6 @@ module.exports = {
     deleteItem:deleteItem,
     updateItemStatus:updateItemStatus,
     rejectOrWithdrawItem:rejectOrWithdrawItem,
-    acceptItem:acceptItem
+    acceptItem:acceptItem,
+    updateRating:updateRating
 }

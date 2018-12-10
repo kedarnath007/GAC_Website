@@ -45,17 +45,38 @@
                                             <div class="btn btn-info"> See the Offer</div>
                                         </a>
                                     <% } else if(status == undefined) { %>
-                                        <a href="/rating?theItem=<%= gameItem.itemCode %>">
+                                        <a href="/myItems">
                                             <div class="btn btn-info"> <span class="glyphicon glyphicon-star"></span> Rate</div>
                                         </a>
                                         <a href="/myItems?action=offer&theItem=<%= gameItem.itemCode %>">
                                             <div class="btn btn-info"> <span class="glyphicon glyphicon-refresh"></span> Swap</div>
                                         </a>
                                     <% } %>
-                                    <% if(error) { %>
-                                        </br>
-                                        <p>Sorry,you do not have any available games for swapping. Please add more games to start swapping again!</p></br>
-                                    <% } %>
+                                    <div>
+                                        <h4><b>Set Item Rating </b></h4>
+                                    </div>
+                                    <div>
+                                        <span class="fa fa-star checked span_rating" id="1one" onmouseover="starmark(this)" onclick="starmark(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="2one" onmouseover="starmark(this)" onclick="starmark(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="3one" onmouseover="starmark(this)" onclick="starmark(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="4one" onmouseover="starmark(this)" onclick="starmark(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="5one" onmouseover="starmark(this)" onclick="starmark(this)"></span>    
+                                    </div>
+                                    <div>
+                                        <h4><b>Set User Rating </b></h4>
+                                    </div>
+                                    <div>
+                                        <span class="fa fa-star checked span_rating" id="1two" onmouseover="starmark1(this)" onclick="starmark1(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="2two" onmouseover="starmark1(this)" onclick="starmark1(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="3two" onmouseover="starmark1(this)" onclick="starmark1(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="4two" onmouseover="starmark1(this)" onclick="starmark1(this)"></span>
+                                        <span class="fa fa-star checked span_rating" id="5two" onmouseover="starmark1(this)" onclick="starmark1(this)"></span>    
+                                    </div>
+                                    <div>
+                                        <button class="btn btn-primary" onclick="location.href='./rating?theItem=<%= gameItem.itemCode %>' + showRating()">
+                                            Submit
+                                        </button>
+                                    </div>
                                 </div>
                             <% } else { %>
                                 <p>The Game you have requested is not found</p>

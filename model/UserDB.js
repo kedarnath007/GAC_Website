@@ -73,10 +73,10 @@ function createUser( UserID, FirstName, LastName, EmailAddress, Address1, Addres
     return userInstance;
 };
 
-function addUser(usersDB, userParam, password, userID, callback){
-    var userInstance = new usersDB({_id:userID,Password: password, FirstName: userParam.FirstName, LastName: userParam.LastName,
+function addUser(usersDB, userParam, password, callback){
+    var userInstance = new usersDB({_id:userParam.UserID, Password: password, FirstName: userParam.FirstName, LastName: userParam.LastName,
                                     EmailAddress: userParam.EmailAddress, Address1:userParam.Address1, Address2: userParam.Address2, City: userParam.City, State:userParam.State, PostCode: userParam.PostCode, Country: userParam.Country});
-    usersDB.save(function(err,result ){
+    userInstance.save(function(err,result ){
         if(!err){
             callback(true);
         }
@@ -289,6 +289,24 @@ function validateCredentials(usersDB,email, password, callback){
 //     }
 // };
 
+function getMaxID(usersDB, callback){
+    usersDB.findOne({}).sort('-_id').exec(function(err,doc){
+        callback(doc._id);
+    });
+};
+
+function checkEmail(usersDB,email, callback){
+    usersDB.findOne({EmailAddress:email}, function(err,docs){
+        if(!err){
+            if(docs){
+                callback(docs.EmailAddress);
+            }else{
+                callback(undefined);
+            }
+        }
+    });
+};
+
 module.exports = {
     //getUserItems: getUserItems,
     //getUsers: getUsers,
@@ -302,5 +320,7 @@ module.exports = {
     getItemIDByUser: getItemIDByUser,
     getItemsByUserCategory: getItemsByUserCategory,
     getUniqueCategoriesByUserCategory: getUniqueCategoriesByUserCategory,
-    validateCredentials:validateCredentials
+    validateCredentials:validateCredentials,
+    getMaxID:getMaxID,
+    checkEmail:checkEmail
 }

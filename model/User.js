@@ -1,4 +1,4 @@
-var User = function (UserID, FirstName, LastName, EmailAddress, Address1, Address2, City, State, PostCode, Country ) {
+var User = function (UserID, FirstName, LastName, EmailAddress, Address1, Address2, City, State, PostCode, Country, Password ) {
     this.UserID = UserID;
     this.FirstName = FirstName;
     this.LastName = LastName;
@@ -9,6 +9,7 @@ var User = function (UserID, FirstName, LastName, EmailAddress, Address1, Addres
     this.State = State;
     this.PostCode = PostCode;
     this.Country = Country;
+    this.Password = Password;
 
     var userInfo = {
         UserID: this.UserID,
@@ -20,7 +21,8 @@ var User = function (UserID, FirstName, LastName, EmailAddress, Address1, Addres
         City:this.City,
         State:this.State,
         PostCode:this.PostCode,
-        Country:this.Country
+        Country:this.Country,
+        Password:this.Password
     }
 
     return userInfo;
