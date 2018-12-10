@@ -45,13 +45,13 @@
                                             <div class="btn btn-info"> See the Offer</div>
                                         </a>
                                     <% } else if(status == undefined) { %>
-                                        <a href="/rating?theItem=<%= gameItem.itemCode %>">
-                                            <div class="btn btn-info"> <span class="glyphicon glyphicon-star"></span> Rate</div>
-                                        </a>
                                         <a href="/myItems?action=offer&theItem=<%= gameItem.itemCode %>">
                                             <div class="btn btn-info"> <span class="glyphicon glyphicon-refresh"></span> Swap</div>
                                         </a>
                                     <% } %>
+                                    <a href="/rating?theItem=<%= gameItem.itemCode %>">
+                                        <div class="btn btn-info"> <span class="glyphicon glyphicon-star"></span> Rate</div>
+                                    </a>
                                     <% if(error) { %>
                                         </br>
                                         <p>Sorry,you do not have any available games for swapping. Please add more games to start swapping again!</p></br>
